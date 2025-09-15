@@ -1,5 +1,6 @@
 package br.com.yago.socialmedia_api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -50,6 +51,22 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
+    // --- NOVAS PROPRIEDADES ADICIONADAS ABAIXO ---
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "user_followers",
+        joinColumns = @JoinColumn(name = "user_id"), // A pessoa que está sendo seguida
+        inverseJoinColumns = @JoinColumn(name = "follower_id") // A pessoa que segue
+    )
+    private Set<User> followers = new HashSet<>();
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "followers", fetch = FetchType.LAZY)
+    private Set<User> following = new HashSet<>();
+
+
     public User() {}
 
     // Getters e Setters
@@ -67,6 +84,12 @@ public class User {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public Set<Role> getRoles() { return roles; }
     public void setRoles(Set<Role> roles) { this.roles = roles; }
+    
+    // Getters e Setters para as novas propriedades
+    public Set<User> getFollowers() { return followers; }
+    public void setFollowers(Set<User> followers) { this.followers = followers; }
+    public Set<User> getFollowing() { return following; }
+    public void setFollowing(Set<User> following) { this.following = following; }
 
     @Override
     public boolean equals(Object o) {
