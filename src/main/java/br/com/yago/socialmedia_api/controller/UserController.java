@@ -25,9 +25,29 @@ public class UserController {
     private UserRepository userRepository;
 
     @Autowired
-    private PostRepository postRepository; // ADICIONE ESTA LINHA
+    private PostRepository postRepository;
 
-    // Métodos follow/unfollow que você já tem...
+    // --- MÉTODO GET USER PROFILE MODIFICADO ---
+    @GetMapping("/{username}")
+    @Transactional(readOnly = true)
+    public ResponseEntity<UserProfileResponse> getUserProfile(@PathVariable String username, @AuthenticationPrincipal UserDetails userDetails) {
+        // Encontra o usuário do perfil que está sendo visitado
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        // Encontra o usuário que está logado e fazendo a requisição
+        User currentUser = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Current user not found"));
+
+        // Verifica se o usuário logado está na lista de seguidores do perfil visitado
+        boolean isFollowing = user.getFollowers().contains(currentUser);
+
+        // Retorna a resposta incluindo o novo campo 'isFollowing'
+        return ResponseEntity.ok(new UserProfileResponse(user, isFollowing));
+    }
+
+    // --- O RESTO DA CLASSE PERMANECE IGUAL ---
+
     @PostMapping("/{username}/follow")
     @Transactional
     public ResponseEntity<?> followUser(@PathVariable String username, @AuthenticationPrincipal UserDetails userDetails) {
@@ -54,16 +74,6 @@ public class UserController {
         userRepository.save(userToUnfollow);
         return ResponseEntity.ok().build();
     }
-    
-    // --- ADICIONE OS NOVOS MÉTODOS ABAIXO ---
-
-    @GetMapping("/{username}")
-    @Transactional(readOnly = true)
-    public ResponseEntity<UserProfileResponse> getUserProfile(@PathVariable String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        return ResponseEntity.ok(new UserProfileResponse(user));
-    }
 
     @GetMapping("/{username}/posts")
     @Transactional(readOnly = true)
@@ -72,7 +82,6 @@ public class UserController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         Page<Post> posts = postRepository.findByAuthorOrderByCreatedAtDesc(user, pageable);
-        // Transforma a página de Entidades (Post) em uma página de DTOs (PostResponse)
         Page<PostResponse> response = posts.map(PostResponse::new);
 
         return ResponseEntity.ok(response);

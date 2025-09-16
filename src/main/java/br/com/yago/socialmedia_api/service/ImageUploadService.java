@@ -13,8 +13,9 @@ public class ImageUploadService {
     @Autowired
     private Cloudinary cloudinary;
 
-    public String uploadImage(MultipartFile file) throws IOException {
-        Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), Map.of());
-        return (String) uploadResult.get("secure_url");
+    // Alterado para retornar o Map completo do Cloudinary
+    public Map uploadImage(MultipartFile file) throws IOException {
+        // "resource_type", "auto" permite que o Cloudinary detecte se é imagem ou vídeo
+        return cloudinary.uploader().upload(file.getBytes(), Map.of("resource_type", "auto"));
     }
 }

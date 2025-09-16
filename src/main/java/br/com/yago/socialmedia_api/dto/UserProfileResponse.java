@@ -8,16 +8,19 @@ public class UserProfileResponse {
     private String fullName;
     private long followerCount;
     private long followingCount;
+    private boolean following; // <-- NOVO CAMPO ADICIONADO
 
-    public UserProfileResponse(User user) {
+    // Construtor atualizado para incluir o status 'following'
+    public UserProfileResponse(User user, boolean following) {
         this.id = user.getId();
         this.username = user.getUsername();
         this.fullName = user.getFullName();
         this.followerCount = user.getFollowers().size();
         this.followingCount = user.getFollowing().size();
+        this.following = following; // <-- ATRIBUINDO O VALOR
     }
-    
-    // Getters e Setters
+
+    // Getters e Setters...
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getUsername() { return username; }
@@ -28,4 +31,6 @@ public class UserProfileResponse {
     public void setFollowerCount(long followerCount) { this.followerCount = followerCount; }
     public long getFollowingCount() { return followingCount; }
     public void setFollowingCount(long followingCount) { this.followingCount = followingCount; }
+    public boolean isFollowing() { return following; } // <-- GETTER PARA O NOVO CAMPO
+    public void setFollowing(boolean following) { this.following = following; }
 }

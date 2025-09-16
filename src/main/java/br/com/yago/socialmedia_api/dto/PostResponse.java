@@ -18,6 +18,7 @@ public class PostResponse {
         this.caption = post.getCaption();
         this.createdAt = post.getCreatedAt();
         this.author = new UserSummaryResponse(post.getAuthor().getId(), post.getAuthor().getUsername());
+        // Nenhuma mudança aqui, mas é importante garantir que o MediaResponse está correto
         this.media = post.getMedia().stream().map(MediaResponse::new).collect(Collectors.toList());
     }
 
