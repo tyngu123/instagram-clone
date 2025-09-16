@@ -29,6 +29,10 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
+    
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
+    
     @NotBlank
     @Email
     @Column(nullable = false, unique = true)
@@ -74,6 +78,8 @@ public class User {
     public void setId(Long id) { this.id = id; }
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getProfilePictureUrl() { return profilePictureUrl; }
+    public void setProfilePictureUrl(String profilePictureUrl) { this.profilePictureUrl = profilePictureUrl; }
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
     public String getEmail() { return email; }

@@ -1,23 +1,28 @@
 package br.com.yago.socialmedia_api.controller;
 
-import br.com.yago.socialmedia_api.model.Media;
-import br.com.yago.socialmedia_api.model.Post;
-import br.com.yago.socialmedia_api.model.User;
-import br.com.yago.socialmedia_api.repository.PostRepository;
-import br.com.yago.socialmedia_api.repository.UserRepository;
-import br.com.yago.socialmedia_api.service.ImageUploadService;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+
+import br.com.yago.socialmedia_api.model.Media;
+import br.com.yago.socialmedia_api.model.Post;
+import br.com.yago.socialmedia_api.model.User;
+import br.com.yago.socialmedia_api.repository.PostRepository;
+import br.com.yago.socialmedia_api.repository.UserRepository;
+import br.com.yago.socialmedia_api.service.ImageUploadService;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -36,11 +41,7 @@ public class PostController {
     public ResponseEntity<Post> createPost(@RequestParam("mediaFiles") List<MultipartFile> mediaFiles,
                                            @RequestParam(value = "caption", required = false) String caption,
                                            @AuthenticationPrincipal UserDetails userDetails) {
-
-        if (mediaFiles.isEmpty() || mediaFiles.size() > 5) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Você deve enviar de 1 a 5 arquivos de mídia.");
-        }
-
+        // ... (código de validação e busca do autor) ...
         User author = userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
@@ -60,6 +61,11 @@ public class PostController {
 
                 if ("video".equals(resourceType)) {
                     media.setMediaType(Media.MediaType.VIDEO);
+                    // Pega a URL do thumbnail gerado
+                    List<Map> eager = (List<Map>) uploadResult.get("eager");
+                    if (eager != null && !eager.isEmpty()) {
+                        media.setThumbnailUrl((String) eager.get(0).get("secure_url"));
+                    }
                 } else {
                     media.setMediaType(Media.MediaType.IMAGE);
                 }
@@ -70,7 +76,7 @@ public class PostController {
             return new ResponseEntity<>(savedPost, HttpStatus.CREATED);
 
         } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Falha ao fazer upload da mídia.", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to upload media.", e);
         }
     }
 }

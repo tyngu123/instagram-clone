@@ -30,11 +30,17 @@ public class Media {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id")
     private Post post;
+    
+    @URL
+    @Column(name = "thumbnail_url", length = 512) // Coluna opcional para o thumbnail
+    private String thumbnailUrl;
 
     public Media() {}
 
     // Getters e Setters
     public Long getId() { return id; }
+    public String getThumbnailUrl() { return thumbnailUrl; }
+    public void setThumbnailUrl(String thumbnailUrl) { this.thumbnailUrl = thumbnailUrl; }
     public void setId(Long id) { this.id = id; }
     public String getMediaUrl() { return mediaUrl; }
     public void setMediaUrl(String mediaUrl) { this.mediaUrl = mediaUrl; }

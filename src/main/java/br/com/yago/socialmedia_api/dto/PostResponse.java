@@ -17,12 +17,13 @@ public class PostResponse {
         this.id = post.getId();
         this.caption = post.getCaption();
         this.createdAt = post.getCreatedAt();
-        this.author = new UserSummaryResponse(post.getAuthor().getId(), post.getAuthor().getUsername());
-        // Nenhuma mudança aqui, mas é importante garantir que o MediaResponse está correto
+        // --- LINHA MODIFICADA ABAIXO ---
+        // Agora passamos a URL da foto do autor para o construtor
+        this.author = new UserSummaryResponse(post.getAuthor().getId(), post.getAuthor().getUsername(), post.getAuthor().getProfilePictureUrl());
         this.media = post.getMedia().stream().map(MediaResponse::new).collect(Collectors.toList());
     }
 
-    // Getters e Setters
+    // Getters e Setters (não precisam de mudança)
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getCaption() { return caption; }
